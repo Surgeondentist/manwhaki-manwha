@@ -13,6 +13,12 @@ export function updateSession(request: NextRequest) {
     request,
   });
 
+  // En la vuelta de OAuth / magic link (PKCE), getUser() puede reescribir cookies
+  // y borrar el code verifier antes de que /auth/callback haga exchangeCodeForSession.
+  if (request.nextUrl.pathname.startsWith("/auth/callback")) {
+    return supabaseResponse;
+  }
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !anonKey) {
