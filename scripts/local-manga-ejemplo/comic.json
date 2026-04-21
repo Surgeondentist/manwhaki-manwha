@@ -1,0 +1,10 @@
+{
+  "title": "Mi manhwa de prueba",
+  "author_name": "Tu nombre o estudio",
+  "description": "Opcional: sinopsis corta.",
+  "status": "ongoing",
+  "chapterTitles": {
+    "1": "Primer capítulo",
+    "2": "Segundo capítulo"
+  }
+}

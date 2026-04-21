@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-surface text-zinc-100 antialiased;
+}
+
+/* ── Glass primitives ─────────────────────────────── */
+.glass {
+  background: rgba(17, 17, 17, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.glass-gold {
+  background: rgba(201, 162, 39, 0.07);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(201, 162, 39, 0.22);
+}
+
+/* ── Brand gradient text ──────────────────────────── */
+.text-brand {
+  background: linear-gradient(105deg, #e4bc52 0%, #c9a227 55%, #e8b4b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Skeleton shimmer ─────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s linear infinite;
+}
+
+/* ── Safe area for bottom nav ─────────────────────── */
+.pb-safe {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+/* ── Reader ───────────────────────────────────────── */
+.reader-root {
+  overscroll-behavior-y: contain;
+}
+
+/* Contenedor principal: ancho teléfono en móvil, más aire en tablet/escritorio */
+@layer components {
+  .app-shell {
+    @apply mx-auto w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl;
+  }
+
+  /* Tira del lector: un poco más ancha en escritorio, sin ocupar todo el monitor */
+  .reader-strip {
+    @apply mx-auto w-full max-w-md md:max-w-2xl lg:max-w-3xl;
+  }
+}
