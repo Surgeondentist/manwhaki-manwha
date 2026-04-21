@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MainHeaderAuth } from "@/components/auth/MainHeaderAuth";
 
 function IconHome() {
   return (
@@ -27,7 +28,7 @@ function IconUser() {
   );
 }
 
-export default function MainGroupLayout({
+export default async function MainGroupLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
@@ -37,12 +38,7 @@ export default function MainGroupLayout({
         <Link href="/" className="font-heading text-[1.35rem] leading-none text-brand">
           Manwhaki
         </Link>
-        <Link
-          href="/login"
-          className="glass-gold rounded-full px-4 py-1.5 text-xs font-semibold text-gold transition-all duration-200 hover:brightness-110 active:scale-95"
-        >
-          Entrar
-        </Link>
+        <MainHeaderAuth />
       </header>
 
       {/* ── Page content ── */}
