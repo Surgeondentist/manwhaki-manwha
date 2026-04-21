@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Righteous, Poppins } from "next/font/google";
+import { GoogleAdSense } from "@/components/GoogleAdSense";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 const righteous = Righteous({
@@ -39,7 +41,11 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es" className={`${righteous.variable} ${poppins.variable}`}>
-      <body className="min-h-dvh bg-surface font-sans">{children}</body>
+      <body className="min-h-dvh bg-surface font-sans">
+        {children}
+        <GoogleAnalytics />
+        <GoogleAdSense />
+      </body>
     </html>
   );
 }
