@@ -4,15 +4,21 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase";
+import { safeRelativePath } from "@/lib/safe-next-path";
 
 function callbackUrl(next: string) {
   if (typeof window === "undefined") return "";
   const origin = window.location.origin;
-  return `${origin}/auth/callback?next=${encodeURIComponent(next)}`;
+  const path = safeRelativePath(next);
+  return `${origin}/auth/callback?next=${encodeURIComponent(path)}`;
 }
 
 export function LoginForm() {
   const searchParams = useSearchParams();
+  const nextAfterLogin = useMemo(
+    () => safeRelativePath(searchParams.get("next")),
+    [searchParams]
+  );
   const initialError = searchParams.get("error");
   const initialMessage = searchParams.get("message");
 
@@ -43,7 +49,7 @@ export function LoginForm() {
     const { data, error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: callbackUrl("/"),
+        redirectTo: callbackUrl(nextAfterLogin),
       },
     });
     setLoading("idle");
@@ -54,7 +60,7 @@ export function LoginForm() {
     if (data.url) {
       window.location.href = data.url;
     }
-  }, [supabase]);
+  }, [supabase, nextAfterLogin]);
 
   const signInEmail = useCallback(
     async (e: React.FormEvent) => {
@@ -74,7 +80,7 @@ export function LoginForm() {
       const { error: err } = await supabase.auth.signInWithOtp({
         email: trimmed,
         options: {
-          emailRedirectTo: callbackUrl("/"),
+          emailRedirectTo: callbackUrl(nextAfterLogin),
           shouldCreateUser: true,
         },
       });
@@ -85,7 +91,7 @@ export function LoginForm() {
       }
       setInfo("Te enviamos un enlace mágico. Abre el correo y pulsa el enlace para entrar.");
     },
-    [email, supabase]
+    [email, supabase, nextAfterLogin]
   );
 
   if (!supabase) {

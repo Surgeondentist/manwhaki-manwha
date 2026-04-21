@@ -41,10 +41,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es" className={`${righteous.variable} ${poppins.variable}`}>
+      <head>
+        <GoogleAdSense />
+      </head>
       <body className="min-h-dvh bg-surface font-sans">
         {children}
         <GoogleAnalytics />
-        <GoogleAdSense />
       </body>
     </html>
   );

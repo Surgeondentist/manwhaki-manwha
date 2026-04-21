@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import type { Database } from "@/types/database";
 
@@ -47,7 +48,8 @@ function createClientWithCookies(url: string, anonKey: string) {
           cache: "no-store",
         }),
     },
-  });
+  // El cliente SSR infiere mal nuestro `Database` manual → tablas como `never` sin este refuerzo.
+  }) as unknown as SupabaseClient<Database>;
 }
 
 /**

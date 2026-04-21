@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ComicLibraryControls } from "@/components/comic/ComicLibraryControls";
 import { SupabaseSetupHint } from "@/components/ui/SupabaseSetupHint";
 import { createServerSupabaseClientOptional } from "@/lib/supabase/server";
 import { isSupabaseStoragePublicUrl } from "@/lib/supabase-image";
 import { isUuid } from "@/lib/utils/uuid";
-import type { ChapterListItem, Tables } from "@/types/database";
+import type { ChapterListItem, LibraryStatus, Tables } from "@/types/database";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +45,21 @@ export default async function ComicDetailPage({ params }: ComicPageProps) {
   }
 
   if (!comic) notFound();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let libraryStatus: LibraryStatus | null = null;
+  if (user) {
+    const { data: libRow } = await supabase
+      .from("library")
+      .select("status")
+      .eq("user_id", user.id)
+      .eq("comic_id", comic.id)
+      .maybeSingle();
+    libraryStatus = (libRow?.status as LibraryStatus | undefined) ?? null;
+  }
 
   const { data: chaptersRaw, error: chaptersError } = await supabase
     .from("chapters")
@@ -100,6 +116,12 @@ export default async function ComicDetailPage({ params }: ComicPageProps) {
             {comic.description}
           </p>
         )}
+
+        <ComicLibraryControls
+          comicId={comic.id}
+          isLoggedIn={Boolean(user)}
+          initialStatus={libraryStatus}
+        />
 
         {/* ── Chapter list ── */}
         <div className="mt-6">

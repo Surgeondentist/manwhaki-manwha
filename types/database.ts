@@ -152,11 +152,18 @@ export type Database = {
         ];
       };
     };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
     Enums: {
       comic_status: ComicStatus;
       library_item_status: LibraryStatus;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
     };
   };
 };

@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { safeRelativePath } from "@/lib/safe-next-path";
 import type { Database } from "@/types/database";
 
 type CookieToSet = {
@@ -12,7 +13,7 @@ type CookieToSet = {
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const nextPath = searchParams.get("next") ?? "/";
+  const nextPath = safeRelativePath(searchParams.get("next"));
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=missing_code`);

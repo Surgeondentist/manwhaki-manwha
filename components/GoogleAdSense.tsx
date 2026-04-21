@@ -10,19 +10,22 @@ function clientId(): string | null {
 }
 
 /**
- * Script global de AdSense (p. ej. anuncios automáticos).
- * Los bloques `<ins class="adsbygoogle">` se añaden donde quieras mostrar anuncios.
+ * Debe renderizarse dentro de `<head>` (requisito de conexión / verificación AdSense).
+ * @see https://support.google.com/adsense/answer/7584263?hl=es
  */
 export function GoogleAdSense() {
   const id = clientId();
   if (!id) return null;
 
   return (
-    <Script
-      async
-      src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${id}`}
-      strategy="lazyOnload"
-      crossOrigin="anonymous"
-    />
+    <>
+      <meta name="google-adsense-account" content={id} />
+      <Script
+        async
+        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${id}`}
+        strategy="afterInteractive"
+        crossOrigin="anonymous"
+      />
+    </>
   );
 }
