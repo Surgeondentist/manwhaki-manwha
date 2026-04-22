@@ -151,6 +151,78 @@ export type Database = {
           },
         ];
       };
+      comic_likes: {
+        Row: {
+          comic_id: string;
+          user_id: string;
+          created_at: string;
+        };
+        Insert: {
+          comic_id: string;
+          user_id: string;
+          created_at?: string;
+        };
+        Update: {
+          comic_id?: string;
+          user_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "comic_likes_comic_id_fkey";
+            columns: ["comic_id"];
+            isOneToOne: false;
+            referencedRelation: "comics";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comic_likes_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      comic_comments: {
+        Row: {
+          id: string;
+          comic_id: string;
+          user_id: string;
+          body: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          comic_id: string;
+          user_id: string;
+          body: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          comic_id?: string;
+          user_id?: string;
+          body?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "comic_comments_comic_id_fkey";
+            columns: ["comic_id"];
+            isOneToOne: false;
+            referencedRelation: "comics";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comic_comments_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

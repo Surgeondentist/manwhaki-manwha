@@ -69,7 +69,7 @@ export function VerticalStripReader({ pages }: VerticalStripReaderProps) {
   }
 
   return (
-    <div className="w-full max-w-[100dvw] overflow-x-hidden bg-[#080808]">
+    <div className="w-full max-w-[100dvw] bg-[#080808]">
       {pages.map((page, index) => {
         const isLead = index === 0;
         return (

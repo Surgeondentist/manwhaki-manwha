@@ -66,12 +66,33 @@ create table if not exists public.library (
   primary key (user_id, comic_id)
 );
 
+create table if not exists public.comic_likes (
+  comic_id uuid not null references public.comics (id) on delete cascade,
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (comic_id, user_id)
+);
+
+create table if not exists public.comic_comments (
+  id uuid primary key default gen_random_uuid(),
+  comic_id uuid not null references public.comics (id) on delete cascade,
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  body text not null,
+  created_at timestamptz not null default now(),
+  constraint comic_comments_body_nonempty check (char_length(trim(body)) > 0),
+  constraint comic_comments_body_len check (char_length(body) <= 2000)
+);
+
 -- -----------------------------------------------------------------------------
 -- Índices (rendimiento en lectura del lector y listados)
 -- -----------------------------------------------------------------------------
 create index if not exists chapters_comic_id_idx on public.chapters (comic_id);
 create index if not exists chapter_pages_chapter_id_page_number_idx
   on public.chapter_pages (chapter_id, page_number);
+
+create index if not exists comic_likes_comic_id_idx on public.comic_likes (comic_id);
+create index if not exists comic_comments_comic_id_created_idx
+  on public.comic_comments (comic_id, created_at desc);
 
 -- -----------------------------------------------------------------------------
 -- updated_at automático en profiles
@@ -137,6 +158,8 @@ alter table public.comics enable row level security;
 alter table public.chapters enable row level security;
 alter table public.chapter_pages enable row level security;
 alter table public.library enable row level security;
+alter table public.comic_likes enable row level security;
+alter table public.comic_comments enable row level security;
 
 -- Limpieza idempotente de políticas (por si re-ejecutas el script)
 do $$ declare r record;
@@ -145,7 +168,15 @@ begin
     select policyname, tablename
     from pg_policies
     where schemaname = 'public'
-      and tablename in ('profiles', 'comics', 'chapters', 'chapter_pages', 'library')
+      and tablename in (
+        'profiles',
+        'comics',
+        'chapters',
+        'chapter_pages',
+        'library',
+        'comic_likes',
+        'comic_comments'
+      )
   loop
     execute format('drop policy if exists %I on public.%I', r.policyname, r.tablename);
   end loop;
@@ -234,4 +265,30 @@ create policy library_update_own
 
 create policy library_delete_own
   on public.library for delete
+  using (auth.uid() = user_id);
+
+-- comic_likes: conteo público; cada usuario solo inserta/borra su propia fila
+create policy comic_likes_select_all
+  on public.comic_likes for select
+  using (true);
+
+create policy comic_likes_insert_own
+  on public.comic_likes for insert
+  with check (auth.uid() = user_id);
+
+create policy comic_likes_delete_own
+  on public.comic_likes for delete
+  using (auth.uid() = user_id);
+
+-- comic_comments: lectura pública; escribe/borra solo el autor
+create policy comic_comments_select_all
+  on public.comic_comments for select
+  using (true);
+
+create policy comic_comments_insert_own
+  on public.comic_comments for insert
+  with check (auth.uid() = user_id);
+
+create policy comic_comments_delete_own
+  on public.comic_comments for delete
   using (auth.uid() = user_id);

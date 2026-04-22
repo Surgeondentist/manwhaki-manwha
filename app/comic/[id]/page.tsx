@@ -1,8 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import {
+  ComicCommentsSection,
+  type ComicCommentItem,
+} from "@/components/comic/ComicCommentsSection";
+import { ComicLikeButton } from "@/components/comic/ComicLikeButton";
 import { ComicLibraryControls } from "@/components/comic/ComicLibraryControls";
+import { ComicShareButton } from "@/components/comic/ComicShareButton";
 import { SupabaseSetupHint } from "@/components/ui/SupabaseSetupHint";
+import { getSiteUrl } from "@/lib/site-url";
 import { createServerSupabaseClientOptional } from "@/lib/supabase/server";
 import { isSupabaseStoragePublicUrl } from "@/lib/supabase-image";
 import { isUuid } from "@/lib/utils/uuid";
@@ -69,6 +76,67 @@ export default async function ComicDetailPage({ params }: ComicPageProps) {
 
   const chapters = (chaptersRaw ?? []) as ChapterListItem[];
 
+  const shareUrl = `${getSiteUrl()}/comic/${comic.id}`;
+
+  const [likesCountRes, commentsRes] = await Promise.all([
+    supabase
+      .from("comic_likes")
+      .select("*", { count: "exact", head: true })
+      .eq("comic_id", comic.id),
+    supabase
+      .from("comic_comments")
+      .select("id, body, created_at, user_id")
+      .eq("comic_id", comic.id)
+      .order("created_at", { ascending: false })
+      .limit(80),
+  ]);
+
+  const likeCount = likesCountRes.error ? 0 : likesCountRes.count ?? 0;
+
+  let userLiked = false;
+  if (user) {
+    const { data: likeRow } = await supabase
+      .from("comic_likes")
+      .select("comic_id")
+      .eq("comic_id", comic.id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    userLiked = Boolean(likeRow);
+  }
+
+  const commentRows = commentsRes.data ?? [];
+  const commentUserIds = Array.from(
+    new Set(commentRows.map((r) => r.user_id))
+  );
+  let profileNameById = new Map<string, string>();
+  if (commentUserIds.length > 0 && !commentsRes.error) {
+    const { data: profileRows } = await supabase
+      .from("profiles")
+      .select("id, username")
+      .in("id", commentUserIds);
+    for (const p of profileRows ?? []) {
+      profileNameById.set(p.id, p.username);
+    }
+  }
+
+  const initialComments: ComicCommentItem[] = commentsRes.error
+    ? []
+    : commentRows.map((row) => ({
+        id: row.id,
+        body: row.body,
+        created_at: row.created_at,
+        user_id: row.user_id,
+        username: profileNameById.get(row.user_id) ?? "Lector",
+      }));
+
+  const engagementErrMsg =
+    likesCountRes.error?.message ?? commentsRes.error?.message ?? "";
+  const engagementNeedsSetup =
+    Boolean(engagementErrMsg) &&
+    (/comic_likes|comic_comments|does not exist|schema cache|Could not find/i.test(
+      engagementErrMsg
+    ));
+
   return (
     <div className="app-shell flex min-h-dvh flex-col animate-fade-up">
       {/* ── Cover hero ── */}
@@ -117,14 +185,74 @@ export default async function ComicDetailPage({ params }: ComicPageProps) {
           </p>
         )}
 
+        <p className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
+          <a
+            href="#capitulos"
+            className="font-medium text-gold/75 underline-offset-2 hover:text-gold hover:underline"
+          >
+            Capítulos ({chapters.length}) ↓
+          </a>
+          <a
+            href="#comentarios"
+            className="font-medium text-gold/75 underline-offset-2 hover:text-gold hover:underline"
+          >
+            Comentarios ↓
+          </a>
+        </p>
+
+        {engagementNeedsSetup && (
+          <div
+            className="mt-4 rounded-2xl border border-amber-500/30 bg-amber-950/25 px-4 py-3 text-xs leading-relaxed text-amber-100/90"
+            role="status"
+          >
+            <p className="font-semibold text-amber-200">Likes y comentarios no activos en la base</p>
+            <p className="mt-1.5 text-amber-100/80">
+              En Supabase → SQL Editor ejecuta el archivo{" "}
+              <code className="rounded bg-black/40 px-1 py-0.5 text-[10px] text-amber-50">
+                supabase/migrations/20260422_comic_engagement.sql
+              </code>{" "}
+              (tablas <code className="text-[10px]">comic_likes</code> y{" "}
+              <code className="text-[10px]">comic_comments</code>). Luego recarga esta página.
+            </p>
+          </div>
+        )}
+
+        <section
+          className="mt-6 rounded-2xl border border-white/10 bg-black/20 px-4 py-5 sm:px-5"
+          aria-labelledby="comic-reacciones"
+        >
+          <h2
+            id="comic-reacciones"
+            className="text-xs font-bold uppercase tracking-[0.18em] text-zinc-400"
+          >
+            Me gusta y compartir
+          </h2>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <ComicLikeButton
+              comicId={comic.id}
+              initialCount={likeCount}
+              initialLiked={userLiked}
+              isLoggedIn={Boolean(user)}
+            />
+            <ComicShareButton shareUrl={shareUrl} title={comic.title} />
+          </div>
+        </section>
+
         <ComicLibraryControls
           comicId={comic.id}
           isLoggedIn={Boolean(user)}
           initialStatus={libraryStatus}
         />
 
+        <ComicCommentsSection
+          comicId={comic.id}
+          initialComments={initialComments}
+          currentUserId={user?.id ?? null}
+          isLoggedIn={Boolean(user)}
+        />
+
         {/* ── Chapter list ── */}
-        <div className="mt-6">
+        <div id="capitulos" className="mt-8 scroll-mt-24">
           <h2 className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">
             Capítulos · {chapters.length}
           </h2>

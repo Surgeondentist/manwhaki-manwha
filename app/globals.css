@@ -6,9 +6,13 @@
   color-scheme: dark;
 }
 
-html,
+/* min-height evita que el scroll quede “atrapado” solo en <html> sin disparar bien window en escritorio */
+html {
+  min-height: 100%;
+}
+
 body {
-  height: 100%;
+  min-height: 100%;
 }
 
 body {
@@ -58,8 +62,11 @@ body {
 }
 
 /* ── Reader ───────────────────────────────────────── */
+/* Sin overflow ni overscroll “contain” aquí: en escritorio forzarían un
+   scrollport interno (p. ej. con overflow-x-hidden en el padre) y la rueda
+   del ratón dejaba de desplazar la página. */
 .reader-root {
-  overscroll-behavior-y: contain;
+  overscroll-behavior-y: auto;
 }
 
 /* Contenedor principal: ancho teléfono en móvil, más aire en tablet/escritorio */

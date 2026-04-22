@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AdSenseBibliotecaBanner } from "@/components/ads/AdSenseBibliotecaBanner";
 import { BibliotecaList, type BibliotecaEntry } from "@/components/biblioteca/BibliotecaList";
+import { KawaiiScrollToTop } from "@/components/ui/KawaiiScrollToTop";
 import { SupabaseSetupHint } from "@/components/ui/SupabaseSetupHint";
 import { createServerSupabaseClientOptional } from "@/lib/supabase/server";
 
@@ -64,8 +66,13 @@ export default async function BibliotecaPage() {
           </Link>
         </div>
       ) : (
-        <BibliotecaList entries={entries} />
+        <>
+          <AdSenseBibliotecaBanner />
+          <BibliotecaList entries={entries} />
+        </>
       )}
+
+      <KawaiiScrollToTop />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { VerticalStripReader } from "@/components/lector/VerticalStripReader";
+import { KawaiiScrollToTop } from "@/components/ui/KawaiiScrollToTop";
 import { SupabaseSetupHint } from "@/components/ui/SupabaseSetupHint";
 import { createServerSupabaseClientOptional } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/utils/uuid";
@@ -124,7 +125,7 @@ export default async function ReadChapterPage({ params }: ReadPageProps) {
   const backHref = `/comic/${chapter.comic_id}`;
 
   return (
-    <div className="reader-root min-h-dvh overflow-x-hidden bg-[#080808] text-zinc-100">
+    <div className="reader-root min-h-dvh bg-[#080808] text-zinc-100">
       {/* ── Glass reader header ── */}
       <header className="glass sticky top-0 z-30">
         <div className="reader-strip flex items-center justify-between px-4 py-2.5 sm:px-5">
@@ -219,6 +220,8 @@ export default async function ReadChapterPage({ params }: ReadPageProps) {
           </div>
         </div>
       </footer>
+
+      <KawaiiScrollToTop />
     </div>
   );
 }

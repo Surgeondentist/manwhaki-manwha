@@ -48,11 +48,16 @@ const config: Config = {
           "0%,100%": { opacity: "0.5" },
           "50%": { opacity: "1" },
         },
+        kawaii_float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-4px)" },
+        },
       },
       animation: {
         shimmer: "shimmer 1.8s linear infinite",
         "fade-up": "fade-up 0.35s cubic-bezier(0.16,1,0.3,1) forwards",
         pulse_glow: "pulse_glow 2.4s ease-in-out infinite",
+        "kawaii-float": "kawaii_float 2.2s ease-in-out infinite",
       },
     },
   },
