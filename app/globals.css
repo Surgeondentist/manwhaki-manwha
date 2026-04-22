@@ -68,8 +68,8 @@ body {
     @apply mx-auto w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl;
   }
 
-  /* Tira del lector: un poco más ancha en escritorio, sin ocupar todo el monitor */
+  /* Tira del lector: ancho completo del viewport (manhwa / webtoon a pantalla completa) */
   .reader-strip {
-    @apply mx-auto w-full max-w-md md:max-w-2xl lg:max-w-3xl;
+    @apply w-full max-w-none;
   }
 }

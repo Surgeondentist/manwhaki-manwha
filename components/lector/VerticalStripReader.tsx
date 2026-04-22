@@ -69,7 +69,7 @@ export function VerticalStripReader({ pages }: VerticalStripReaderProps) {
   }
 
   return (
-    <div className="reader-strip bg-[#080808]">
+    <div className="w-full max-w-[100dvw] overflow-x-hidden bg-[#080808]">
       {pages.map((page, index) => {
         const isLead = index === 0;
         return (
@@ -77,13 +77,13 @@ export function VerticalStripReader({ pages }: VerticalStripReaderProps) {
             key={`${page.pageNumber}-${page.src}`}
             ref={(node) => { panelRefs.current[index] = node; }}
             data-index={index}
-            className="relative w-full bg-[#080808]"
+            className="relative w-full min-w-0 bg-[#080808]"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={page.src}
               alt={`Página ${page.pageNumber}`}
-              className="block w-full h-auto"
+              className="block h-auto w-full min-w-0 max-w-full select-none"
               loading={isLead ? "eager" : "lazy"}
               decoding={isLead ? "sync" : "async"}
               draggable={false}
