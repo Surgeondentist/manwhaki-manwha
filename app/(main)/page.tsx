@@ -72,8 +72,7 @@ export default async function HomePage() {
   const { data: comicsRaw, error } = await supabase
     .from("comics")
     .select("id, title, description, cover_url, author_name, status, created_at")
-    .order("created_at", { ascending: false })
-    .limit(24);
+    .order("created_at", { ascending: false });
 
   const comics = (comicsRaw ?? []) as ComicListItem[];
 
@@ -86,7 +85,8 @@ export default async function HomePage() {
     );
   }
 
-  const [featured, ...rest] = comics;
+  /** El más reciente por `created_at` (mismo orden que la query). También aparece en el catálogo. */
+  const featured = comics[0] ?? null;
 
   return (
     <div className="space-y-7 animate-fade-up">
@@ -155,7 +155,7 @@ export default async function HomePage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
-            {(featured ? rest : comics).map((comic) => (
+            {comics.map((comic) => (
               <ComicCard key={comic.id} comic={comic} />
             ))}
           </div>
