@@ -27,36 +27,44 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createServerSupabaseClientOptional();
   if (!supabase) return entries;
 
-  const { data: comicsRaw } = await supabase
-    .from("comics")
-    .select("id, created_at")
-    .order("created_at", { ascending: false });
+  try {
+    const { data: comicsRaw, error: comicsErr } = await supabase
+      .from("comics")
+      .select("id, created_at")
+      .order("created_at", { ascending: false });
 
-  const comics = comicsRaw ?? [];
-  for (const row of comics) {
-    if (!row?.id) continue;
-    entries.push({
-      url: `${base}/comic/${row.id}`,
-      lastModified: parseDate(row.created_at),
-      changeFrequency: "weekly",
-      priority: 0.85,
-    });
-  }
+    if (!comicsErr) {
+      const comics = comicsRaw ?? [];
+      for (const row of comics) {
+        if (!row?.id) continue;
+        entries.push({
+          url: `${base}/comic/${row.id}`,
+          lastModified: parseDate(row.created_at),
+          changeFrequency: "weekly",
+          priority: 0.85,
+        });
+      }
+    }
 
-  const { data: chaptersRaw } = await supabase
-    .from("chapters")
-    .select("id, created_at")
-    .order("created_at", { ascending: false });
+    const { data: chaptersRaw, error: chaptersErr } = await supabase
+      .from("chapters")
+      .select("id, created_at")
+      .order("created_at", { ascending: false });
 
-  const chapters = chaptersRaw ?? [];
-  for (const row of chapters) {
-    if (!row?.id) continue;
-    entries.push({
-      url: `${base}/read/${row.id}`,
-      lastModified: parseDate(row.created_at),
-      changeFrequency: "weekly",
-      priority: 0.65,
-    });
+    if (!chaptersErr) {
+      const chapters = chaptersRaw ?? [];
+      for (const row of chapters) {
+        if (!row?.id) continue;
+        entries.push({
+          url: `${base}/read/${row.id}`,
+          lastModified: parseDate(row.created_at),
+          changeFrequency: "weekly",
+          priority: 0.65,
+        });
+      }
+    }
+  } catch {
+    /* Nunca devolver 500 HTML: GSC interpreta mal el sitemap. */
   }
 
   return entries;

@@ -42,6 +42,41 @@ if (supabaseUrl) {
 
 const nextConfig = {
   images: { remotePatterns },
+
+  /** GSC / Googlebot: Content-Type explícito y redirect del truco "sitemap.xml/" */
+  async headers() {
+    return [
+      {
+        source: "/sitemap.xml",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "application/xml; charset=utf-8",
+          },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+        ],
+      },
+      {
+        source: "/robots.txt",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "text/plain; charset=utf-8",
+          },
+        ],
+      },
+    ];
+  },
+
+  async redirects() {
+    return [
+      {
+        source: "/sitemap.xml/",
+        destination: "/sitemap.xml",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

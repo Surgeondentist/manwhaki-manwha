@@ -7,12 +7,14 @@ import { getSiteUrl } from "@/lib/site-url";
  */
 export default function robots(): MetadataRoute.Robots {
   const base = getSiteUrl();
+  /** URL canónica sin barra final (coincide con redirect de sitemap.xml/ → sitemap.xml). */
+  const sitemapUrl = `${base}/sitemap.xml`;
   return {
     rules: [
       { userAgent: "*", allow: "/" },
       { userAgent: "Mediapartners-Google", allow: "/" },
       { userAgent: "Googlebot", allow: "/" },
     ],
-    sitemap: `${base}/sitemap.xml`,
+    sitemap: sitemapUrl,
   };
 }
