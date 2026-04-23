@@ -37,6 +37,7 @@ export type Database = {
           title: string;
           description: string | null;
           cover_url: string | null;
+          banner_url: string | null;
           author_name: string | null;
           status: ComicStatus;
           created_at: string;
@@ -46,6 +47,7 @@ export type Database = {
           title: string;
           description?: string | null;
           cover_url?: string | null;
+          banner_url?: string | null;
           author_name?: string | null;
           status?: ComicStatus;
           created_at?: string;
@@ -55,6 +57,7 @@ export type Database = {
           title?: string;
           description?: string | null;
           cover_url?: string | null;
+          banner_url?: string | null;
           author_name?: string | null;
           status?: ComicStatus;
           created_at?: string;
@@ -243,11 +246,16 @@ export type Database = {
 export type Tables<T extends keyof Database["public"]["Tables"]> =
   Database["public"]["Tables"][T]["Row"];
 
-/** Filas usadas en listados (evita `never` por desajuste fino con el genérico del cliente). */
+/**
+ * Listados de cómics. `banner_url` es opcional en runtime hasta aplicar la migración
+ * `20260423_comics_banner_url.sql` (la query del inicio hace fallback sin esa columna).
+ */
 export type ComicListItem = Pick<
   Tables<"comics">,
   "id" | "title" | "description" | "cover_url" | "author_name" | "status" | "created_at"
->;
+> & {
+  banner_url?: string | null;
+};
 
 export type ChapterListItem = Pick<
   Tables<"chapters">,

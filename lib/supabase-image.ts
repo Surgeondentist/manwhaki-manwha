@@ -70,14 +70,45 @@ export function supabaseTransformedImageSrc(
   return `${origin}/storage/v1/render/image/public/${bucket}/${objectPath}?${q.toString()}`;
 }
 
-/** Portadas en grid del inicio (~258px CSS → 2x retina). */
+/** Portadas en grid del inicio (recorte 3:4, ~260px CSS ×2). */
 export function supabaseCatalogCoverSrc(url: string | null | undefined): string | undefined {
-  return supabaseTransformedImageSrc(url, { width: 560, quality: 78 });
+  return supabaseTransformedImageSrc(url, {
+    width: 560,
+    height: 746,
+    quality: 78,
+    resize: "cover",
+  });
 }
 
-/** Hero destacado (anchos grandes en `sizes`). */
+/**
+ * Hero “Destacado” con imagen horizontal dedicada (`banner_url`).
+ */
+export function supabaseFeaturedBannerSrc(url: string | null | undefined): string | undefined {
+  return supabaseTransformedImageSrc(url, {
+    width: 1920,
+    height: 640,
+    quality: 82,
+    resize: "cover",
+  });
+}
+
+/**
+ * Hero cuando solo hay `cover_url` vertical: recorte tipo banner (~2.4:1).
+ */
+export function supabaseFeaturedCropFromCoverSrc(
+  url: string | null | undefined
+): string | undefined {
+  return supabaseTransformedImageSrc(url, {
+    width: 1600,
+    height: 520,
+    quality: 80,
+    resize: "cover",
+  });
+}
+
+/** @deprecated Usar supabaseFeaturedBannerSrc o supabaseFeaturedCropFromCoverSrc según el caso. */
 export function supabaseFeaturedCoverSrc(url: string | null | undefined): string | undefined {
-  return supabaseTransformedImageSrc(url, { width: 1280, quality: 80 });
+  return supabaseFeaturedCropFromCoverSrc(url);
 }
 
 /** Miniatura en biblioteca (~96px CSS). */

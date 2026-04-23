@@ -16,6 +16,7 @@ insert into public.comics (
   title,
   description,
   cover_url,
+  banner_url,
   author_name,
   status
 )
@@ -24,6 +25,7 @@ values (
   'Luz de ciudad (demo)',
   'Cómic de ejemplo para probar el catálogo, la ficha y el lector vertical. Puedes borrarlo cuando subas contenido real.',
   'https://picsum.photos/seed/manwaki-cover/400/600',
+  null,
   'Estudio Manwaki',
   'ongoing'
 );

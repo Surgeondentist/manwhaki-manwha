@@ -36,6 +36,7 @@ create table if not exists public.comics (
   title text not null,
   description text,
   cover_url text,
+  banner_url text,
   author_name text,
   status public.comic_status not null default 'ongoing',
   created_at timestamptz not null default now()

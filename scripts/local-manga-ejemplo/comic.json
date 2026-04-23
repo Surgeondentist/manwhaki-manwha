@@ -1,8 +1,9 @@
 {
   "title": "Mi manhwa de prueba",
   "author_name": "Tu nombre o estudio",
-  "description": "Opcional: sinopsis corta.",
+  "description": "Opcional: sinopsis. comic_id vacío = obra nueva; con UUID = actualizar. cover = portada vertical (catálogo). banner = imagen ancha opcional para Destacado en inicio.",
   "status": "ongoing",
+  "comic_id": "",
   "chapterTitles": {
     "1": "Primer capítulo",
     "2": "Segundo capítulo"

@@ -5,7 +5,8 @@ import { createServerSupabaseClientOptional } from "@/lib/supabase/server";
 import {
   isSupabaseImageUrl,
   supabaseCatalogCoverSrc,
-  supabaseFeaturedCoverSrc,
+  supabaseFeaturedBannerSrc,
+  supabaseFeaturedCropFromCoverSrc,
 } from "@/lib/supabase-image";
 import type { ComicListItem } from "@/types/database";
 
@@ -25,7 +26,7 @@ function ComicCard({ comic }: { comic: ComicListItem }) {
             alt={comic.title}
             fill
             unoptimized={isSupabaseImageUrl(comic.cover_url)}
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 480px) 46vw, (max-width: 768px) 31vw, (max-width: 1280px) 23vw, 260px"
           />
         ) : (
@@ -73,11 +74,29 @@ export default async function HomePage() {
     );
   }
 
-  const { data: comicsRaw, error } = await supabase
+  const selectComicsFull =
+    "id, title, description, cover_url, banner_url, author_name, status, created_at";
+  const selectComicsLegacy =
+    "id, title, description, cover_url, author_name, status, created_at";
+
+  const fullRes = await supabase
     .from("comics")
-    .select("id, title, description, cover_url, author_name, status, created_at")
+    .select(selectComicsFull)
     .order("created_at", { ascending: false });
 
+  const missingBannerCol =
+    fullRes.error &&
+    /banner_url/i.test(fullRes.error.message) &&
+    /does not exist|no existe|schema cache/i.test(fullRes.error.message);
+
+  const listRes = missingBannerCol
+    ? await supabase
+        .from("comics")
+        .select(selectComicsLegacy)
+        .order("created_at", { ascending: false })
+    : fullRes;
+
+  const { data: comicsRaw, error } = listRes;
   const comics = (comicsRaw ?? []) as ComicListItem[];
 
   if (error) {
@@ -92,6 +111,16 @@ export default async function HomePage() {
   /** El más reciente por `created_at` (mismo orden que la query). También aparece en el catálogo. */
   const featured = comics[0] ?? null;
 
+  const featuredHeroOriginal =
+    featured?.banner_url?.trim() || featured?.cover_url || null;
+  const featuredHeroSrc = featured
+    ? featured.banner_url?.trim()
+      ? supabaseFeaturedBannerSrc(featured.banner_url) ?? featured.banner_url
+      : featured.cover_url
+        ? supabaseFeaturedCropFromCoverSrc(featured.cover_url) ?? featured.cover_url
+        : null
+    : null;
+
   return (
     <div className="space-y-7 animate-fade-up">
       {/* ── Featured hero ── */}
@@ -99,38 +128,47 @@ export default async function HomePage() {
         {featured ? (
           <Link
             href={`/comic/${featured.id}`}
-            className="glass-card group relative flex h-52 w-full overflow-hidden rounded-3xl transition-all hover:border-gold/20 hover:shadow-[0_0_36px_rgba(201,162,39,0.1)] active:scale-[0.98] sm:h-56 md:h-64 lg:h-72"
+            className="glass-card group relative isolate block w-full overflow-hidden rounded-3xl transition-all hover:border-gold/20 hover:shadow-[0_0_36px_rgba(201,162,39,0.1)] active:scale-[0.98] aspect-[5/4] sm:aspect-[16/9] lg:aspect-[2.35/1]"
           >
-            {featured.cover_url && (
+            {featuredHeroSrc && (
               <Image
-                src={supabaseFeaturedCoverSrc(featured.cover_url) ?? featured.cover_url}
+                src={featuredHeroSrc}
                 alt={featured.title}
                 fill
-                unoptimized={isSupabaseImageUrl(featured.cover_url)}
-                className="object-cover opacity-35 transition-transform duration-700 group-hover:scale-105"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1152px"
+                unoptimized={isSupabaseImageUrl(featuredHeroOriginal)}
+                className={`z-0 object-cover opacity-40 transition-transform duration-700 group-hover:scale-[1.03] ${
+                  featured.banner_url?.trim()
+                    ? "object-center"
+                    : "object-[center_18%] sm:object-[center_22%]"
+                }`}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 92vw, min(1280px, 96vw)"
                 priority
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/60 to-transparent" />
-            <div className="relative flex max-w-xl flex-col justify-end p-5 md:p-7 lg:max-w-2xl">
-              <span className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-gold">
-                Destacado
-              </span>
-              <h2 className="font-heading text-xl leading-tight text-zinc-100 md:text-2xl lg:text-3xl">
-                {featured.title}
-              </h2>
-              {featured.author_name && (
-                <p className="mt-0.5 text-xs text-zinc-400">{featured.author_name}</p>
-              )}
-              {featured.description && (
-                <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-zinc-400">
-                  {featured.description}
-                </p>
-              )}
-              <span className="mt-3.5 inline-flex w-fit items-center gap-1.5 rounded-full bg-gold-shine px-4 py-1.5 text-xs font-bold text-black">
-                Leer ahora →
-              </span>
+            <div
+              className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-r from-black/95 via-black/55 to-transparent"
+              aria-hidden
+            />
+            <div className="absolute inset-0 z-[2] flex flex-col justify-end p-5 md:p-7 lg:p-8">
+              <div className="max-w-xl lg:max-w-2xl">
+                <span className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-gold">
+                  Destacado
+                </span>
+                <h2 className="font-heading text-xl leading-tight text-zinc-100 md:text-2xl lg:text-3xl">
+                  {featured.title}
+                </h2>
+                {featured.author_name && (
+                  <p className="mt-0.5 text-xs text-zinc-400">{featured.author_name}</p>
+                )}
+                {featured.description && (
+                  <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-zinc-400">
+                    {featured.description}
+                  </p>
+                )}
+                <span className="mt-3.5 inline-flex w-fit items-center gap-1.5 rounded-full bg-gold-shine px-4 py-1.5 text-xs font-bold text-black">
+                  Leer ahora →
+                </span>
+              </div>
             </div>
           </Link>
         ) : (

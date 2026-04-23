@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { KawaiiChapterNav } from "@/components/lector/KawaiiChapterNav";
 import { VerticalStripReader } from "@/components/lector/VerticalStripReader";
 import { KawaiiScrollToTop } from "@/components/ui/KawaiiScrollToTop";
 import { SupabaseSetupHint } from "@/components/ui/SupabaseSetupHint";
@@ -221,6 +222,19 @@ export default async function ReadChapterPage({ params }: ReadPageProps) {
           </div>
         </div>
       </footer>
+
+      <KawaiiChapterNav
+        prev={
+          prevChapter
+            ? { id: prevChapter.id, label: chapterLabel(prevChapter) }
+            : null
+        }
+        next={
+          nextChapter
+            ? { id: nextChapter.id, label: chapterLabel(nextChapter) }
+            : null
+        }
+      />
 
       <KawaiiScrollToTop />
     </div>
