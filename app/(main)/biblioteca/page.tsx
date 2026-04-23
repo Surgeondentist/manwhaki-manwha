@@ -47,7 +47,7 @@ export default async function BibliotecaPage() {
     <div className="space-y-6 animate-fade-up">
       <div>
         <h1 className="font-heading text-2xl text-zinc-100">Biblioteca</h1>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="mt-1 text-sm text-zinc-400">
           Manhwas que sigues. Actualiza el estado o quita títulos cuando quieras.
         </p>
       </div>
@@ -55,7 +55,7 @@ export default async function BibliotecaPage() {
       {entries.length === 0 ? (
         <div className="glass-card rounded-2xl p-6 text-center">
           <p className="text-sm text-zinc-400">Aún no tienes nada guardado.</p>
-          <p className="mt-2 text-xs text-zinc-600">
+          <p className="mt-2 text-xs text-zinc-400">
             Explora el catálogo y pulsa <span className="text-gold/80">Añadir a mi biblioteca</span> en la ficha de un manhwa.
           </p>
           <Link

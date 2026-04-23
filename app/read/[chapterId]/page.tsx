@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { VerticalStripReader } from "@/components/lector/VerticalStripReader";
 import { KawaiiScrollToTop } from "@/components/ui/KawaiiScrollToTop";
 import { SupabaseSetupHint } from "@/components/ui/SupabaseSetupHint";
+import { supabaseReaderPageSrc } from "@/lib/supabase-image";
 import { createServerSupabaseClientOptional } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/utils/uuid";
 import type { ChapterPageItem, Tables } from "@/types/database";
@@ -91,7 +92,7 @@ export default async function ReadChapterPage({ params }: ReadPageProps) {
   const pages = (pagesRows ?? []) as ChapterPageItem[];
   const stripPages = pages.map((row) => ({
     pageNumber: row.page_number,
-    src: row.image_url,
+    src: supabaseReaderPageSrc(row.image_url) ?? row.image_url,
   }));
 
   const [{ data: prevRow }, { data: nextRow }] = await Promise.all([
@@ -145,7 +146,7 @@ export default async function ReadChapterPage({ params }: ReadPageProps) {
 
         <Link
           href="/"
-          className="rounded-full px-2 py-1.5 text-xs text-zinc-500 transition hover:text-gold"
+          className="rounded-full px-2 py-1.5 text-xs text-zinc-400 transition hover:text-gold"
           aria-label="Inicio"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -169,7 +170,7 @@ export default async function ReadChapterPage({ params }: ReadPageProps) {
         <div className="reader-strip px-3 sm:px-4">
           <p className="text-xs font-semibold text-brand">— Fin del capítulo —</p>
           {stripPages.length > 0 && (
-            <p className="mt-1 text-[11px] text-zinc-600">{stripPages.length} páginas</p>
+            <p className="mt-1 text-[11px] text-zinc-400">{stripPages.length} páginas</p>
           )}
 
           <div className="mx-auto mt-6 grid max-w-2xl gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-stretch sm:gap-4">
@@ -179,7 +180,7 @@ export default async function ReadChapterPage({ params }: ReadPageProps) {
                   href={`/read/${prevChapter.id}`}
                   className="flex w-full flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-center transition hover:border-gold/30 hover:bg-gold/[0.06] active:scale-[0.98] sm:items-start sm:text-left"
                 >
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                     Capítulo anterior
                   </span>
                   <span className="mt-0.5 text-sm font-semibold text-zinc-100">
@@ -206,7 +207,7 @@ export default async function ReadChapterPage({ params }: ReadPageProps) {
                   href={`/read/${nextChapter.id}`}
                   className="flex w-full flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-center transition hover:border-gold/30 hover:bg-gold/[0.06] active:scale-[0.98] sm:items-end sm:text-right"
                 >
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                     Siguiente capítulo
                   </span>
                   <span className="mt-0.5 text-sm font-semibold text-zinc-100">

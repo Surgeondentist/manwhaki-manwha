@@ -15,7 +15,7 @@ function IconHome({ active }: { active: boolean }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden
-      className={active ? "text-gold" : "text-zinc-500"}
+      className={active ? "text-gold" : "text-zinc-400"}
     >
       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
       <polyline points="9 22 9 12 15 12 15 22" />
@@ -35,7 +35,7 @@ function IconBook({ active }: { active: boolean }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden
-      className={active ? "text-gold" : "text-zinc-500"}
+      className={active ? "text-gold" : "text-zinc-400"}
     >
       <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
       <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
@@ -55,7 +55,7 @@ function IconUser({ active }: { active: boolean }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden
-      className={active ? "text-gold" : "text-zinc-500"}
+      className={active ? "text-gold" : "text-zinc-400"}
     >
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
       <circle cx="12" cy="7" r="4" />
@@ -71,11 +71,11 @@ export function MainBottomNav() {
 
   const linkClass = (active: boolean) =>
     `flex flex-col items-center gap-1 rounded-xl px-6 py-1.5 transition-colors ${
-      active ? "text-gold" : "text-zinc-500 hover:text-zinc-300"
+      active ? "text-gold" : "text-zinc-400 hover:text-zinc-200"
     }`;
 
   const labelClass = (active: boolean) =>
-    `text-[10px] font-semibold ${active ? "" : "font-normal"}`;
+    `text-[10px] ${active ? "font-semibold" : "font-medium"}`;
 
   return (
     <nav

@@ -12,10 +12,11 @@ const righteous = Righteous({
 });
 
 const poppins = Poppins({
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
   variable: "--font-poppins",
   display: "swap",
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
@@ -36,12 +37,27 @@ export const viewport: Viewport = {
   themeColor: "#0a0a0a",
 };
 
+function supabaseStorageOrigin(): string | null {
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const storageOrigin = supabaseStorageOrigin();
+
   return (
     <html lang="es" className={`${righteous.variable} ${poppins.variable}`}>
       <head>
+        {storageOrigin ? (
+          <link rel="preconnect" href={storageOrigin} crossOrigin="anonymous" />
+        ) : null}
         <GoogleAdSense />
       </head>
       <body className="min-h-dvh bg-surface font-sans">

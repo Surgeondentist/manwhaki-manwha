@@ -29,9 +29,9 @@ export function ProfileForm({ initialUsername, email }: Props) {
       }}
     >
       <div>
-        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Correo</p>
+        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Correo</p>
         <p className="mt-1 truncate text-sm text-zinc-300">{email ?? "—"}</p>
-        <p className="mt-1 text-[11px] text-zinc-600">El correo se gestiona desde el proveedor de acceso (Google, etc.).</p>
+        <p className="mt-1 text-[11px] text-zinc-400">El correo se gestiona desde el proveedor de acceso (Google, etc.).</p>
       </div>
 
       <div className="space-y-1.5">
@@ -49,7 +49,7 @@ export function ProfileForm({ initialUsername, email }: Props) {
           minLength={3}
           maxLength={30}
         />
-        <p className="text-[11px] text-zinc-600">3–30 caracteres: letras, números y _</p>
+        <p className="text-[11px] text-zinc-400">3–30 caracteres: letras, números y _</p>
       </div>
 
       {err ? (

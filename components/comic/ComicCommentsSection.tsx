@@ -79,10 +79,10 @@ export function ComicCommentsSection({
             rows={3}
             maxLength={2000}
             placeholder="¿Qué te parece este manhwa?"
-            className="w-full resize-y rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-gold/30 placeholder:text-zinc-600 focus:border-gold/30 focus:ring-1"
+            className="w-full resize-y rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-gold/30 placeholder:text-zinc-500 focus:border-gold/30 focus:ring-1"
           />
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-            <span className="text-[10px] text-zinc-600">{body.length}/2000</span>
+            <span className="text-[10px] text-zinc-400">{body.length}/2000</span>
             <button
               type="submit"
               disabled={pending || !body.trim()}
@@ -109,7 +109,7 @@ export function ComicCommentsSection({
 
       <ul className="mt-6 space-y-4">
         {initialComments.length === 0 ? (
-          <li className="text-sm text-zinc-600">Sé el primero en comentar.</li>
+          <li className="text-sm text-zinc-400">Sé el primero en comentar.</li>
         ) : (
           initialComments.map((c) => (
             <li
@@ -118,7 +118,7 @@ export function ComicCommentsSection({
             >
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="text-sm font-semibold text-gold/90">{c.username}</span>
-                <time className="text-[10px] text-zinc-600" dateTime={c.created_at}>
+                <time className="text-[10px] text-zinc-400" dateTime={c.created_at}>
                   {formatCommentDate(c.created_at)}
                 </time>
               </div>
@@ -135,7 +135,7 @@ export function ComicCommentsSection({
                       if (r.ok) router.refresh();
                     });
                   }}
-                  className="mt-2 text-[11px] font-medium text-zinc-500 underline-offset-2 hover:text-red-300 hover:underline disabled:opacity-50"
+                  className="mt-2 text-[11px] font-medium text-zinc-400 underline-offset-2 hover:text-red-300 hover:underline disabled:opacity-50"
                 >
                   Eliminar
                 </button>

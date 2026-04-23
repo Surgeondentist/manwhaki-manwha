@@ -108,12 +108,12 @@ export function LoginForm() {
     <div className="space-y-5 animate-fade-up">
       <div className="text-center">
         <p className="font-heading text-2xl text-brand">Manwhaki</p>
-        <p className="mt-1 text-sm text-zinc-500">Tu lector de manhwas</p>
+        <p className="mt-1 text-sm text-zinc-400">Tu lector de manhwas</p>
       </div>
 
       <div className="glass-card rounded-3xl p-6">
         <h1 className="text-base font-semibold text-zinc-100">Iniciar sesión</h1>
-        <p className="mt-1.5 text-xs leading-relaxed text-zinc-500">
+        <p className="mt-1.5 text-xs leading-relaxed text-zinc-400">
           Google o enlace mágico por correo (sin contraseña).
         </p>
 
@@ -163,7 +163,7 @@ export function LoginForm() {
             <span className="w-full border-t border-white/10" />
           </div>
           <div className="relative flex justify-center text-[10px] uppercase tracking-wider">
-            <span className="bg-surface px-2 text-zinc-500">o correo</span>
+            <span className="bg-surface px-2 text-zinc-400">o correo</span>
           </div>
         </div>
 
@@ -180,7 +180,7 @@ export function LoginForm() {
               placeholder="tu@correo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-white/8 bg-surface px-3.5 py-2.5 text-sm text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-gold/40 focus:ring-0 disabled:opacity-40"
+              className="w-full rounded-xl border border-white/8 bg-surface px-3.5 py-2.5 text-sm text-zinc-200 outline-none placeholder:text-zinc-500 focus:border-gold/40 focus:ring-0 disabled:opacity-40"
               disabled={loading !== "idle"}
             />
           </div>
@@ -195,7 +195,7 @@ export function LoginForm() {
         </form>
       </div>
 
-      <p className="text-center text-xs text-zinc-600">
+      <p className="text-center text-xs text-zinc-400">
         <Link href="/" className="text-gold/70 hover:text-gold transition-colors">
           ← Volver al catálogo
         </Link>

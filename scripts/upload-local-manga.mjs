@@ -11,13 +11,28 @@
  * Bucket (crear en Supabase → Storage, idealmente público para lectura):
  *   COMIC_STORAGE_BUCKET=comic-pages   (opcional, por defecto comic-pages)
  *
+ * Cache en CDN: las subidas usan cacheControl largo (1 año) para PageSpeed /
+ * visitas repetidas. Si sustituyes un archivo en la misma ruta, los navegadores
+ * pueden seguir viendo la versión en caché hasta que expire.
+ *
  * Estructura esperada de la carpeta (--dir):
  *   comic.json          metadatos del cómic
+ *   portada.webp        (opcional) imagen de portada si la declaras en comic.json → cover
  *   01/   (o 1/)        imágenes del capítulo 1  → 001.webp, 002.webp, … o 1.jpg, 2.jpg
  *   02/                 capítulo 2
  *
  * comic.json ejemplo:
- *   { "title": "Mi obra", "author_name": "Tu nombre", "description": "Opcional", "status": "ongoing" }
+ *   {
+ *     "title": "Mi obra",
+ *     "author_name": "Tu nombre",
+ *     "description": "Opcional",
+ *     "status": "ongoing",
+ *     "cover": { "file": "portada.webp" }
+ *   }
+ *
+ * Portada (opcional): objeto "cover" con "file" (o "path") = ruta relativa a la carpeta del manhwa.
+ * Si existe, se sube a comics/<id-comic>/cover.<ext> y se usa como cover_url.
+ * Si no hay "cover", se sigue usando la primera página del primer capítulo subido.
  */
 
 import { createClient } from "@supabase/supabase-js";
@@ -66,6 +81,9 @@ function naturalCompare(a, b) {
 
 const IMAGE_EXT = new Set([".webp", ".jpg", ".jpeg", ".png", ".gif"]);
 
+/** Segundos — alineado con recomendaciones de caché para recursos estáticos (Lighthouse / PageSpeed). */
+const STORAGE_CACHE_CONTROL_MAX_AGE = "31536000";
+
 function isImageFile(name) {
   const ext = path.extname(name).toLowerCase();
   return IMAGE_EXT.has(ext);
@@ -109,6 +127,72 @@ function listImagesInDir(dirPath) {
   return files.map((f) => path.join(dirPath, f));
 }
 
+/**
+ * @param {unknown} coverMeta
+ * @param {string} rootDir
+ * @returns {{ ok: true, diskPath: string } | { ok: false, message: string }}
+ */
+function resolveCoverDiskPath(coverMeta, rootDir) {
+  if (coverMeta === undefined || coverMeta === null) {
+    return { ok: true, diskPath: null };
+  }
+  if (typeof coverMeta !== "object" || Array.isArray(coverMeta)) {
+    return {
+      ok: false,
+      message:
+        'comic.json: "cover" debe ser un objeto, p. ej. { "file": "portada.webp" }',
+    };
+  }
+  const rel = coverMeta.file ?? coverMeta.path;
+  if (!rel || typeof rel !== "string") {
+    return {
+      ok: false,
+      message:
+        'comic.json: en "cover" indica "file" (ruta relativa al manhwa), p. ej. { "file": "assets/portada.webp" }',
+    };
+  }
+  const root = path.resolve(rootDir);
+  const abs = path.resolve(root, rel);
+  const relFromRoot = path.relative(root, abs);
+  if (relFromRoot.startsWith("..") || path.isAbsolute(relFromRoot)) {
+    return {
+      ok: false,
+      message: "La ruta de la portada debe estar dentro de la carpeta del manhwa.",
+    };
+  }
+  if (!fs.existsSync(abs) || !fs.statSync(abs).isFile()) {
+    return {
+      ok: false,
+      message: `No existe el archivo de portada: ${rel}`,
+    };
+  }
+  if (!isImageFile(path.basename(abs))) {
+    return {
+      ok: false,
+      message: `La portada debe ser imagen (.webp, .jpg, .jpeg, .png, .gif): ${rel}`,
+    };
+  }
+  return { ok: true, diskPath: abs };
+}
+
+/**
+ * @param {import("@supabase/supabase-js").SupabaseClient} supabase
+ */
+async function uploadDiskImageToPath(supabase, bucket, storagePath, diskPath) {
+  const ext = path.extname(diskPath).toLowerCase();
+  const body = fs.readFileSync(diskPath);
+  const { error: upErr } = await supabase.storage
+    .from(bucket)
+    .upload(storagePath, body, {
+      contentType: mimeForExt(ext),
+      upsert: true,
+      cacheControl: STORAGE_CACHE_CONTROL_MAX_AGE,
+    });
+  if (upErr) return { error: upErr };
+  const { data: pub } = supabase.storage.from(bucket).getPublicUrl(storagePath);
+  return { publicUrl: pub.publicUrl };
+}
+
 async function main() {
   loadEnvLocal();
 
@@ -146,6 +230,12 @@ async function main() {
     process.exit(1);
   }
 
+  const coverResolved = resolveCoverDiskPath(meta.cover, dir);
+  if (!coverResolved.ok) {
+    console.error(coverResolved.message);
+    process.exit(1);
+  }
+
   const chapterDirs = listChapterDirs(dir);
   if (chapterDirs.length === 0) {
     console.error(
@@ -177,6 +267,24 @@ async function main() {
 
   const comicId = comic.id;
   console.log("Cómic creado:", comicId);
+
+  let explicitCoverUrl = null;
+  if (coverResolved.diskPath) {
+    const ext = path.extname(coverResolved.diskPath).toLowerCase();
+    const coverStoragePath = `comics/${comicId}/cover${ext}`;
+    const upCover = await uploadDiskImageToPath(
+      supabase,
+      bucket,
+      coverStoragePath,
+      coverResolved.diskPath
+    );
+    if (upCover.error) {
+      console.error(`Error subiendo portada (${coverStoragePath}):`, upCover.error.message);
+      process.exit(1);
+    }
+    explicitCoverUrl = upCover.publicUrl;
+    console.log(`  Portada → ${coverStoragePath} (desde comic.json)`);
+  }
 
   let firstPublicUrl = null;
 
@@ -210,22 +318,13 @@ async function main() {
       pageNumber += 1;
       const ext = path.extname(filePath).toLowerCase();
       const storagePath = `comics/${comicId}/${chapterId}/${String(pageNumber).padStart(3, "0")}${ext}`;
-      const body = fs.readFileSync(filePath);
 
-      const { error: upErr } = await supabase.storage
-        .from(bucket)
-        .upload(storagePath, body, {
-          contentType: mimeForExt(ext),
-          upsert: true,
-        });
-
-      if (upErr) {
-        console.error(`Error subiendo ${storagePath}:`, upErr.message);
+      const up = await uploadDiskImageToPath(supabase, bucket, storagePath, filePath);
+      if (up.error) {
+        console.error(`Error subiendo ${storagePath}:`, up.error.message);
         process.exit(1);
       }
-
-      const { data: pub } = supabase.storage.from(bucket).getPublicUrl(storagePath);
-      const publicUrl = pub.publicUrl;
+      const publicUrl = up.publicUrl;
 
       if (firstPublicUrl === null) firstPublicUrl = publicUrl;
 
@@ -242,8 +341,9 @@ async function main() {
     }
   }
 
-  if (firstPublicUrl) {
-    await supabase.from("comics").update({ cover_url: firstPublicUrl }).eq("id", comicId);
+  const coverUrlToSet = explicitCoverUrl ?? firstPublicUrl;
+  if (coverUrlToSet) {
+    await supabase.from("comics").update({ cover_url: coverUrlToSet }).eq("id", comicId);
   }
 
   console.log("\nListo.");

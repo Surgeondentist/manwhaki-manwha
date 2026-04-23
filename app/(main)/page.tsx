@@ -2,7 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { SupabaseSetupHint } from "@/components/ui/SupabaseSetupHint";
 import { createServerSupabaseClientOptional } from "@/lib/supabase/server";
-import { isSupabaseStoragePublicUrl } from "@/lib/supabase-image";
+import {
+  isSupabaseImageUrl,
+  supabaseCatalogCoverSrc,
+  supabaseFeaturedCoverSrc,
+} from "@/lib/supabase-image";
 import type { ComicListItem } from "@/types/database";
 
 /** Siempre datos frescos de Supabase (título, autor, portada al editarlos en el panel). */
@@ -17,10 +21,10 @@ function ComicCard({ comic }: { comic: ComicListItem }) {
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-surface-elevated">
         {comic.cover_url ? (
           <Image
-            src={comic.cover_url}
+            src={supabaseCatalogCoverSrc(comic.cover_url) ?? comic.cover_url}
             alt={comic.title}
             fill
-            unoptimized={isSupabaseStoragePublicUrl(comic.cover_url)}
+            unoptimized={isSupabaseImageUrl(comic.cover_url)}
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 480px) 46vw, (max-width: 768px) 31vw, (max-width: 1280px) 23vw, 260px"
           />
@@ -29,7 +33,7 @@ function ComicCard({ comic }: { comic: ComicListItem }) {
             <span className="font-heading text-3xl text-gold/25">M</span>
           </div>
         )}
-        <span className="absolute right-2 top-2 rounded-full bg-black/65 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-petal backdrop-blur-sm">
+        <span className="absolute right-2 top-2 rounded-full bg-black/80 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-zinc-100 backdrop-blur-sm">
           {comic.status === "completed" ? "Completo" : "En curso"}
         </span>
       </div>
@@ -38,7 +42,7 @@ function ComicCard({ comic }: { comic: ComicListItem }) {
           {comic.title}
         </h3>
         {comic.author_name && (
-          <p className="mt-0.5 text-[11px] text-zinc-500">{comic.author_name}</p>
+          <p className="mt-0.5 text-[11px] text-zinc-400">{comic.author_name}</p>
         )}
       </div>
     </Link>
@@ -52,7 +56,7 @@ function EmptyHero() {
       <div className="relative">
         <div className="mx-auto mb-3 h-14 w-14 animate-pulse_glow rounded-full bg-gradient-to-br from-gold/30 to-petal/15" />
         <p className="font-heading text-lg text-brand">Manwhaki</p>
-        <p className="mt-1 text-xs text-zinc-600">Pronto habrá manhwas aquí</p>
+        <p className="mt-1 text-xs text-zinc-400">Pronto habrá manhwas aquí</p>
       </div>
     </div>
   );
@@ -99,10 +103,10 @@ export default async function HomePage() {
           >
             {featured.cover_url && (
               <Image
-                src={featured.cover_url}
+                src={supabaseFeaturedCoverSrc(featured.cover_url) ?? featured.cover_url}
                 alt={featured.title}
                 fill
-                unoptimized={isSupabaseStoragePublicUrl(featured.cover_url)}
+                unoptimized={isSupabaseImageUrl(featured.cover_url)}
                 className="object-cover opacity-35 transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1152px"
                 priority
@@ -120,7 +124,7 @@ export default async function HomePage() {
                 <p className="mt-0.5 text-xs text-zinc-400">{featured.author_name}</p>
               )}
               {featured.description && (
-                <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-zinc-500">
+                <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-zinc-400">
                   {featured.description}
                 </p>
               )}
@@ -136,7 +140,7 @@ export default async function HomePage() {
 
       {/* ── Catalog grid ── */}
       <section>
-        <h2 className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">
+        <h2 className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-300">
           Catálogo
         </h2>
 
@@ -146,7 +150,7 @@ export default async function HomePage() {
               <p className="text-sm font-semibold text-zinc-300">
                 La base está lista · falta contenido
               </p>
-              <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+              <p className="mt-2 text-xs leading-relaxed text-zinc-400">
                 Sube tu primer manhwa con{" "}
                 <code className="text-zinc-400">npm run upload:manga</code> y
                 aparecerá aquí automáticamente.

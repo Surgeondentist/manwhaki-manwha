@@ -51,14 +51,14 @@ export default async function PerfilPage() {
     <div className="mx-auto max-w-lg space-y-6 animate-fade-up">
       <div>
         <h1 className="font-heading text-2xl text-zinc-100">Perfil</h1>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="mt-1 text-sm text-zinc-400">
           Cómo te muestran otros en la app y datos básicos de la cuenta.
         </p>
       </div>
 
       <ProfileForm initialUsername={username} email={user.email ?? null} />
 
-      <p className="text-center text-xs text-zinc-600">
+      <p className="text-center text-xs text-zinc-400">
         <Link href="/" className="text-gold/70 hover:text-gold">
           ← Volver al inicio
         </Link>

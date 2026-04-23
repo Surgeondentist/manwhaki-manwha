@@ -11,7 +11,10 @@ import { ComicShareButton } from "@/components/comic/ComicShareButton";
 import { SupabaseSetupHint } from "@/components/ui/SupabaseSetupHint";
 import { getSiteUrl } from "@/lib/site-url";
 import { createServerSupabaseClientOptional } from "@/lib/supabase/server";
-import { isSupabaseStoragePublicUrl } from "@/lib/supabase-image";
+import {
+  isSupabaseImageUrl,
+  supabaseComicDetailCoverSrc,
+} from "@/lib/supabase-image";
 import { isUuid } from "@/lib/utils/uuid";
 import type { ChapterListItem, LibraryStatus, Tables } from "@/types/database";
 
@@ -143,10 +146,10 @@ export default async function ComicDetailPage({ params }: ComicPageProps) {
       <div className="relative h-64 w-full overflow-hidden md:h-72 lg:h-80">
         {comic.cover_url ? (
           <Image
-            src={comic.cover_url}
+            src={supabaseComicDetailCoverSrc(comic.cover_url) ?? comic.cover_url}
             alt={comic.title}
             fill
-            unoptimized={isSupabaseStoragePublicUrl(comic.cover_url)}
+            unoptimized={isSupabaseImageUrl(comic.cover_url)}
             className="object-cover"
             sizes="100vw"
             priority
@@ -253,14 +256,14 @@ export default async function ComicDetailPage({ params }: ComicPageProps) {
 
         {/* ── Chapter list ── */}
         <div id="capitulos" className="mt-8 scroll-mt-24">
-          <h2 className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">
+          <h2 className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-300">
             Capítulos · {chapters.length}
           </h2>
 
           {chaptersError ? (
             <p className="text-sm text-red-300">{chaptersError.message}</p>
           ) : !chapters.length ? (
-            <div className="glass-card rounded-2xl p-4 text-sm text-zinc-500">
+            <div className="glass-card rounded-2xl p-4 text-sm text-zinc-400">
               Sin capítulos aún. Sube uno con{" "}
               <code className="text-zinc-400">npm run upload:manga</code>.
             </div>
@@ -275,7 +278,7 @@ export default async function ComicDetailPage({ params }: ComicPageProps) {
                     <span className="text-sm font-semibold text-zinc-100">
                       Cap. {ch.chapter_number}
                       {ch.title && (
-                        <span className="ml-2 font-normal text-zinc-500">
+                        <span className="ml-2 font-normal text-zinc-400">
                           — {ch.title}
                         </span>
                       )}

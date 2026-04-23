@@ -8,7 +8,10 @@ import {
   removeFromLibrary,
   updateLibraryStatus,
 } from "@/app/actions/library";
-import { isSupabaseStoragePublicUrl } from "@/lib/supabase-image";
+import {
+  isSupabaseImageUrl,
+  supabaseLibraryThumbSrc,
+} from "@/lib/supabase-image";
 import type { ComicStatus, LibraryStatus } from "@/types/database";
 
 export type BibliotecaEntry = {
@@ -48,10 +51,10 @@ export function BibliotecaList({ entries }: { entries: BibliotecaEntry[] }) {
               >
                 {c.cover_url ? (
                   <Image
-                    src={c.cover_url}
+                    src={supabaseLibraryThumbSrc(c.cover_url) ?? c.cover_url}
                     alt={c.title}
                     fill
-                    unoptimized={isSupabaseStoragePublicUrl(c.cover_url)}
+                    unoptimized={isSupabaseImageUrl(c.cover_url)}
                     className="object-cover"
                     sizes="96px"
                   />
@@ -71,7 +74,7 @@ export function BibliotecaList({ entries }: { entries: BibliotecaEntry[] }) {
                     {c.title}
                   </Link>
                   {c.author_name ? (
-                    <p className="mt-0.5 truncate text-[11px] text-zinc-500">{c.author_name}</p>
+                    <p className="mt-0.5 truncate text-[11px] text-zinc-400">{c.author_name}</p>
                   ) : null}
                 </div>
 

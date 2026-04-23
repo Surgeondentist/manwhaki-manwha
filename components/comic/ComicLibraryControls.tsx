@@ -65,7 +65,7 @@ export function ComicLibraryControls({ comicId, isLoggedIn, initialStatus }: Pro
   return (
     <div className="mt-5 flex flex-col gap-2 rounded-2xl border border-white/8 bg-black/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-2">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
           En tu biblioteca
         </span>
         <select
@@ -96,7 +96,7 @@ export function ComicLibraryControls({ comicId, isLoggedIn, initialStatus }: Pro
             if (r.ok) router.refresh();
           });
         }}
-        className="text-xs font-medium text-zinc-500 underline-offset-2 hover:text-red-200 hover:underline disabled:opacity-50"
+        className="text-xs font-medium text-zinc-400 underline-offset-2 hover:text-red-200 hover:underline disabled:opacity-50"
       >
         Quitar de la biblioteca
       </button>

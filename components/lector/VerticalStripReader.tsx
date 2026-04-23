@@ -58,11 +58,11 @@ export function VerticalStripReader({ pages }: VerticalStripReaderProps) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 px-6 text-center">
         <div className="h-12 w-12 rounded-full bg-gradient-to-br from-gold/20 to-petal/10" />
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-zinc-400">
           Este capítulo no tiene páginas aún.
         </p>
-        <p className="text-xs text-zinc-600">
-          Súbelas con <code className="text-zinc-500">npm run upload:manga</code>
+        <p className="text-xs text-zinc-400">
+          Súbelas con <code className="text-zinc-400">npm run upload:manga</code>
         </p>
       </div>
     );
